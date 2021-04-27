@@ -1,0 +1,95 @@
+; mdp FILE For equilibration of a transmembrane protein in the GROMOS 54A7 force field
+; Generally follows the GROMOS 54a7 paper: https://dx.doi.org/10.1007/s00249-011-0700-9
+
+;    INTEGRATION
+integrator               = md
+dt                       = 0.002 ; 2 fs step
+nsteps                   = 250000000 ; 500 ns simulation
+nstcomm                  = 10000 ; remove COM motion every 2 ps (per GROMOS paper)
+
+;    OUTPUT CONTROL
+; Strangely, this is where GROMACS sets all its output control
+; mdrun switches don't change anything
+nstxout                  = 0 ; only last ; Steps between writing coords to uncompressed output trajectory
+nstvout                  = 0 ; only last ; Steps between writing velocities to uncompressed output trajectory
+nstfout                  = 0 ; never ; Steps between writing forces to uncompressed output trajectory
+nstlog                   = 50000 ; 100 ps ; Steps between writing energies to log file
+nstenergy                = 50000 ; 100 ps ; Steps between writing energies to energy file
+nstxout-compressed       = 50000 ; 100 ps ; Steps between writing coords to compressed output trajectory
+compressed-x-precision   = 10000 ; Trajectory compression is lossy; this is the precision of that compression
+
+;    CUTOFF SCHEME
+; Verlet is faster, more parallelisable, more accurate, supports GPUs
+; Only use group for the legacy interactions it supports
+cutoff-scheme            = Verlet
+
+;    COULOMB INTERACTIONS
+; GROMOS 54a7 was parameterised with Reaction field and a triple-range cutoff (0.8 nm/1.4 nm), 
+; but PME has been shown to be better (https://dx.doi.org/10.1016/j.bpj.2010.04.062)
+coulombtype              = PME
+rcoulomb                 = 1.4 
+
+; Reaction field is faster, and can be used instead
+; especially for smaller, more homogenous systems
+; This speed up is reduced the more CPUs your machine has per GPU, unless there are no GPUs
+; Potential shift is v. cheap with Verlet, and doesn't affect forces or sampling
+; coulombtype            = Reaction-Field
+; rcoulomb               = 1.4  
+; coulomb-modifier       = Potential-shift-Verlet
+
+;    LJ INTERACTIONS
+; Follows the GROMOS 54a7 paper
+; Dispersion corrections assume homogeneity beyond the cutoff - not really the case here
+; In addition, GROMOS is parameterized for a cutoff of 1.4 nm without dispersion corrections
+; For dispcorr discussion, see https://mailman-1.sys.kth.se/pipermail/gromacs.org_gmx-users/2012-May/071263.html
+; See also https://dx.doi.org/10.1021/jp0735987 for inadequacy of existing dispersion corrections
+; Potential shift is v. cheap with Verlet, and doesn't affect forces or sampling
+vdwtype                  = Cut-off
+rvdw                     = 1.4
+vdw-modifier             = Potential-shift-Verlet
+dispcorr                 = no
+
+;    TEMPERATURE COUPLING
+; Follows the GROMOS 54a7 paper, but substituting berendsen for v-rescale
+tcoupl                   = V-rescale
+tc-grps                  = Protein_STR  bilayer SOL_ION
+tau-t                    = 0.1      0.1     0.1
+ref-t                    = 300      300     300
+
+;    PRESSURE COUPLING
+; Follows the GROMOS 54a7 paper
+; Berendsen thermostat for equilibration
+;pcoupl                   = Berendsen ; for equilibration - switch to Parrinello-Rahman for production
+;pcoupltype               = semiisotropic
+;tau-p                    = 0.5 
+;compressibility          = 4.5e-5 4.5e-5
+;ref-p                    = 1.0 1.0
+
+; Parrinello-Rahman produces better pressure distribution,
+; but is less stable and can oscillate if the box has to dramatically change size
+pcoupl                  = Parrinello-Rahman
+pcoupltype              = semiisotropic
+tau-p                   = 5
+compressibility         = 4.5e-5 4.5e-5 4.5e-5 4.5e-5
+ref-p                   = 1.0 1.0 1.0 1.0
+
+; If position restraints and pressure coupling are both on, the reference coords
+; should be scaled with the box. 'com' and 'all' both work, if one causes crashes
+; use the other
+;refcoord-scaling         = com
+
+;    VELOCITY GENERATION
+gen-vel                  = no
+gen-temp                 = 300
+gen-seed                 = -1 ; -1 uses a random seed
+
+;    CONSTRAINTS
+; Constraints on all bonds permit 2 fs time step
+; LINCS is faster and more stable
+; Use SHAKE if you need angle constraints
+constraints              = all-bonds
+constraint-algorithm     = LINCS
+continuation             = no
+
+;define                   = -DPOSRES -DPOSRES_FC=0.0 -DDONT_RESTRAIN_MISSING
+
