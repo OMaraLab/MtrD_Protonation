@@ -1,0 +1,63 @@
+;
+;	File 'topol.top' was generated
+;	By user: laurenbooth (2937)
+;	On host: cheddar
+;	At date: Fri Aug 10 16:00:57 2018
+
+;
+;	This is a standalone topology file
+;
+;	Created by:
+;	                    :-) GROMACS - gmx pdb2gmx, 2016.4 (-:
+;	
+;	Executable:   /home/laurenbooth/lauren_gmx_build/bin/gmx
+;	Data prefix:  /home/laurenbooth/lauren_gmx_build
+;	Working dir:  /store/laurenbooth/martini/gomartini/backmap
+;	Command line:
+;	  gmx pdb2gmx -f 4mt1_rep_opm_chainA_noNH2.pdb -ignh -o 4mt1_rep_opm_chainA_nocap_54a7.pdb -ter
+;	Force field was read from current directory or a relative path - path added.
+;
+
+; Include forcefield parameters
+#include "./gromos54a7.ff/forcefield.itp"
+
+; Include chain topologies
+#include "./ua.ff/mtrd_protA_Protein_chain_A.itp"
+#include "./ua.ff/mtrd_protA_Protein_chain_B.itp"
+#include "./ua.ff/mtrd_protA_Protein_chain_C.itp"
+
+; Include water topology
+#include "./gromos54a7.ff/spc.itp"
+
+#ifdef POSRES_WATER
+; Position restraint for each water oxygen
+[ position_restraints ]
+;  i funct       fcx        fcy        fcz
+   1    1       1000       1000       1000
+#endif
+
+; Include lipid topologies
+#include "./ua.ff/ddm.itp"
+#include "./ua.ff/ldm.itp"
+#include "./ua.ff/pppe_piggot.itp"
+
+; Include topology for ions
+#include "./gromos54a7.ff/ions.itp"
+
+[ system ]
+; Name
+Protein in water
+
+[ molecules ]
+; Compound        #mols
+Protein_chain_A      1
+Protein_chain_B      1
+Protein_chain_C      1
+PPE                327
+DDM                 34
+LDM                 47
+SOL              56482
+CL                   2
+NA                 194
+CL                 110
+
