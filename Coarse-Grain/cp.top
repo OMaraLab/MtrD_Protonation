@@ -1,0 +1,22 @@
+#include "martini_v2.2refP_s72.itp"
+#include "martini-DMPG-lipid.itp"
+#include "martini-PPPE-lipid.itp"
+#include "martini_v2.2_aminoacids.itp"
+#include "martini_v2.0_ions.itp"
+#include "Protein_A_singlechain.itp"
+
+
+[ system ]
+; name
+Protein in INSANE! Membrane UpperLeaflet>PPPE:DMPG=80.0:20.0 LowerLeaflet>PPPE:DMPG=80.0:20.0
+
+[ molecules ]
+; name  number
+Protein_A        3
+PPPE           174
+DMPG            43
+PPPE           153
+DMPG            38
+PW          13814
+NA+            194
+CL-            113
