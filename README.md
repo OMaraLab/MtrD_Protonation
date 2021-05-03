@@ -1,6 +1,6 @@
 # MtrD_Protonation
 
-Supplementary data files for the paper "Coordination of substrate binding and protonation in the N. gonorrhoeae MtrD efflux pump conrols functionally rotating transport mechansim"
+Supplementary data files for the paper "Coordination of substrate binding and protonation in the N. gonorrhoeae MtrD efflux pump conrols functionally rotating transport mechanism"
 
 Files are separated based on the 1 Coarse-Grain and 5 United-Atom simulation systems listed in the paper. For each system- the molecule topologies, start and final .gro files for each simulation replicate, and the system .top file are included. 
 
